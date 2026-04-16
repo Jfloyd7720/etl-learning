@@ -46,4 +46,20 @@ WHERE rank <= 3
 """
 print(pd.read_sql_query(q3, conn).to_string())
 
+print("\n--- Task 4: Crimes with over 50 pct unsolved rate ---")
+q4 = """
+SELECT 
+    crime_type,
+    COUNT(*) as total,
+    SUM(CASE WHEN outcome = 'Investigation complete; no suspect identified' 
+        THEN 1 ELSE 0 END) as unsolved,
+    ROUND(100.0 * SUM(CASE WHEN outcome = 'Investigation complete; no suspect identified' 
+        THEN 1 ELSE 0 END) / COUNT(*), 2) as pct_unsolved
+FROM crimes
+GROUP BY crime_type
+HAVING unsolved >= total/2
+ORDER BY pct_unsolved DESC;
+"""
+print(pd.read_sql_query(q4, conn).to_string())
+
 conn.close()
