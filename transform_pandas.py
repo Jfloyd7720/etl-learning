@@ -47,10 +47,32 @@ def transform_pandas(filepath):
     # print(f"[TRANSFORM] Removed {before - after} duplicates")
     # print(f"[TRANSFORM] {len(df)} clean rows ready")
     df['severity'] = df['crime_type'].apply(classify_severity)
+    df['ranking'] = df['crime_type'].apply(crime_severity_score)
     print(df['severity'].value_counts())
+    print(df['ranking'].value_counts())
+    print(df['ranking'].mean().round(0))
     return df
 
     return df
+
+
+def crime_severity_score(crime_type):
+
+    ranking={'Violence And Sexual Offences' : 10,
+    'Robbery' : 9,
+    'Possession Of Weapons' : 8,
+    'Burglary' : 7,
+    'Drugs' : 6,
+    'Criminal Damage And Arson' : 5,
+    'Vehicle Crime' : 4,
+    'Theft From The Person' : 3,
+    'Other Theft' : 3,
+    'Shoplifting' : 2,
+    'Bicycle Theft' : 2,
+    'Public Order' : 2,
+    'Other Crime' : 1} 
+
+    return ranking.get(crime_type,0)
 
 def compare_transforms(func1, func2, filepath):
     from extract import extract
@@ -66,5 +88,6 @@ if __name__ == "__main__":
     print(df.groupby(['crime_type', 'lsoa_name'])['crime_id'].count().groupby('crime_type').mean().round(2))
     # compare_transforms(transform,transform_pandas,"raw_data.csv")
     # print(df.head())
+
 
 
