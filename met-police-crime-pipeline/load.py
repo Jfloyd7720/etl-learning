@@ -1,7 +1,17 @@
-import sqlite3
+import psycopg2
+import os
+from dotenv import load_dotenv
+import psycopg2.extras
 
-def load(rows, db_path="pipeline.db"):
-    conn = sqlite3.connect(db_path)
+load_dotenv()
+
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable not set. Create a .env file.")
+
+def load(rows):
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -21,33 +31,30 @@ def load(rows, db_path="pipeline.db"):
     inserted = 0
     skipped = 0
 
-    for row in rows:
-        try:
-            cursor.execute("""
-                INSERT OR IGNORE INTO crimes
-                (crime_id, month, longitude, latitude, location, lsoa_code, lsoa_name, crime_type, outcome)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                row['crime_id'],
-                row['month'],
-                row['longitude'],
-                row['latitude'],
-                row['location'],
-                row['lsoa_code'],
-                row['lsoa_name'],
-                row['crime_type'],
-                row['outcome'],
-            ))
-            if cursor.rowcount == 1:
-                inserted += 1
-            else:
-                skipped += 1
-        except Exception as e:
-            print(f"[LOAD] Error on row {row['crime_id']}: {e}")
-
+    psycopg2.extras.execute_values(
+        cursor,
+        """
+        INSERT INTO crimes
+        (crime_id, month, longitude, latitude, location, lsoa_code, lsoa_name, crime_type, outcome)
+        VALUES %s
+        ON CONFLICT (crime_id) DO NOTHING
+        """,
+        [(
+            row['crime_id'],
+            row['month'],
+            row['longitude'],
+            row['latitude'],
+            row['location'],
+            row['lsoa_code'],
+            row['lsoa_name'],
+            row['crime_type'],
+            row['outcome'],
+        ) for row in rows]
+    )
+    inserted = cursor.rowcount
+    print(f"[LOAD] {inserted} rows processed")
     conn.commit()
     conn.close()
-    print(f"[LOAD] {inserted} inserted, {skipped} skipped")
 
 if __name__ == "__main__":
     from extract import extract
