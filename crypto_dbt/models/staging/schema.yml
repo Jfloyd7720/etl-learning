@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: stg_coin_prices
+    description: "Cleaned staging layer from raw CoinGecko snapshots. One row per coin per pipeline run."
+    columns:
+      - name: coin_id
+        description: "Unique coin identifier e.g. bitcoin, ethereum"
+      - name: price_usd
+        description: "Current price in USD at time of snapshot"
+      - name: volume_spike
+        description: "True if 24h volume exceeds 30% of market cap — signals unusual trading activity"
+      - name: ingested_at
+        description: "Timestamp when our pipeline ran — distinct from CoinGecko's last_updated_at"

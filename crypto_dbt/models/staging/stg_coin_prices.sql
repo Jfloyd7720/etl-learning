@@ -1,0 +1,23 @@
+   SELECT               
+            coin_id,              
+            symbol  ,             
+            name     ,            
+            price_usd ,           
+            market_cap_usd ,      
+            market_cap_rank ,     
+            volume_24h_usd   ,    
+            high_24h_usd      ,   
+            low_24h_usd        ,  
+            pct_change_1h       , 
+            pct_change_24h       ,
+            pct_change_7d        ,
+            circulating_supply   ,
+            all_time_high_usd    ,
+            pct_from_ath         ,
+            last_updated_at      ,
+            daily_range_pct      ,
+            volume_to_mcap_ratio ,
+            volume_spike         ,
+            ath_distance_bucket  ,
+            ingested_at          
+    FROM raw_coin_prices        

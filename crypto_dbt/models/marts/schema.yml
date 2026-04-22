@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: mart_latest_prices
+    description: "One row per coin showing the most recent snapshot only. Primary table for the webapp."
+    columns:
+      - name: coin_id
+        description: "Unique coin identifier"
+        tests:
+          - unique
+          - not_null
+      - name: price_usd
+        description: "Latest price in USD"
+        tests:
+          - not_null
